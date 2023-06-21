@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+//==========================================================
+
+// schema:
+
+// user:
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  // user has: one profile
+  profile   Profile?
+  // user has: many blog posts
+  posts     Post[]
+  // user has: many bookmark
+  bookmarks Bookmark[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// profile
+
+model Profile {
+  id        String   @id @default(uuid())
+  bio       String?
+  avatarUrl String?
+  // profile has: one user
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// blog post
+
+model Post {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  body        String
+  imgUrl      String
+  // post has: one user
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authorId    String
+  // post has: many tags
+  tags        Tag[]
+  // post has: many bookmarks
+  bookmarkers Bookmark[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// tag
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String?  @unique
+  // tag has: many posts
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// join table: bookmark
+model Bookmark {
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     String // relation scalar field (used in the `@relation` attribute above)
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String // relation scalar field (used in the `@relation` attribute above)
+  assignedAt DateTime @default(now())
+  assignedBy String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([postId, userId])
+}

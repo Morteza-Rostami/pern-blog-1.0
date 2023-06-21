@@ -1,0 +1,12 @@
+{
+  "disks": [
+    {
+      "name": "rostami-proj-one-disk",
+      "mountTo": "public"
+    },
+    {
+      "name": "rostami-proj-one-db",
+      "mountTo": "prisma"
+    }
+  ]
+}
